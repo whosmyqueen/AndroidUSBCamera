@@ -6,6 +6,10 @@ Supporting Android 5.0,6.0,7.0,8.0,9.0,10.0
 
 [中文文档： AndroidUSBCamera，UVCCamera开发通用库](http://blog.csdn.net/andrexpert/article/details/78324181)  
 
+- JNI Source Download: 
+
+[JNI CODE--->password：vpoj](https://pan.baidu.com/s/11OBLCY4VjYYUZGEPcQ1ScA)
+
 Usage
 -------
 ### 1.Add to your Android Studio project  
@@ -210,7 +214,7 @@ ext {
 ```   
 download way:  
 
-![download](https://github.com/jiangdongguo/AndroidUSBCamera/blob/master/gifs/download.png)  
+![download](https://github.com/jiangdongguo/AndroidUSBCamera/blob/master/gifs/app_download.png)  
 
 displaying:  
 
