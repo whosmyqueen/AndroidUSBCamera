@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven { url 'https://gitee.com/liuchaoya/libcommon/raw/master/repository/' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
@@ -13,8 +14,8 @@ buildscript {
 allprojects {
     repositories {
         google()
-        maven { url 'http://raw.github.com/saki4510t/libcommon/master/repository/' }
         jcenter()
+        maven { url 'https://gitee.com/liuchaoya/libcommon/raw/master/repository/' }
     }
 }
 
