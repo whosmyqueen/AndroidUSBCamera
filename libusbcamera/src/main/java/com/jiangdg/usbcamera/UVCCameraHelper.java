@@ -114,7 +114,7 @@ public class UVCCameraHelper {
                     public void run() {
                         // wait for camera created
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

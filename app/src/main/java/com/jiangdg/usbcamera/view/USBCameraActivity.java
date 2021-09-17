@@ -74,6 +74,12 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         public void onAttachDev(UsbDevice device) {
             // request open permission
             if (!isRequest) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTextureView.setVisibility(View.VISIBLE);
+                    }
+                });
                 isRequest = true;
                 if (mCameraHelper != null) {
                     mCameraHelper.requestPermission(0);
@@ -87,6 +93,12 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
             if (isRequest) {
                 isRequest = false;
                 mCameraHelper.closeCamera();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTextureView.setVisibility(View.GONE);
+                    }
+                });
                 showShortMsg(device.getDeviceName() + " is out");
             }
         }
