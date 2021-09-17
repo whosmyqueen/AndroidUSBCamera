@@ -4,6 +4,7 @@ buildscript {
         google()
         jcenter()
         maven { url 'https://gitee.com/liuchaoya/libcommon/raw/master/repository/' }
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.2'
@@ -16,6 +17,7 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://gitee.com/liuchaoya/libcommon/raw/master/repository/' }
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -33,7 +35,7 @@ ext {
     // please modify it to 16
     minSdkVersion = 21
     versionCode = 100
-    versionNameString = '2.3.7.20210917'
+    versionNameString = '2.3.8.20210917'
     javaSourceCompatibility = JavaVersion.VERSION_1_8
     javaTargetCompatibility = JavaVersion.VERSION_1_8
 }

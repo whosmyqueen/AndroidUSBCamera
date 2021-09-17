@@ -32,4 +32,5 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
 
     implementation project(':libusbcamera')
+//    implementation "com.github.jiangdongguo:AndroidUSBCamera:2.3.6"
 }
