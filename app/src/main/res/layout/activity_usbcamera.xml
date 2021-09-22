@@ -91,8 +91,9 @@
         android:layout_marginLeft="13dp"
         android:layout_marginStart="13dp"
         android:layout_marginTop="27dp"
-        android:checked="false"
+        android:checked="true"
         android:text="closeVoice"
-        android:textColor="@color/colorWhite" />
+        android:textColor="@color/colorWhite"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
 </RelativeLayout>

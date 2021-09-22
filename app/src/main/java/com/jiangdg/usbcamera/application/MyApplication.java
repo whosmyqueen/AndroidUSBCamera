@@ -2,7 +2,9 @@ package com.jiangdg.usbcamera.application;
 
 import android.app.Application;
 
-import com.jiangdg.usbcamera.UVCCameraHelper;
+import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.Utils;
+import com.innovation.ai.technical.RTCSDK;
 import com.jiangdg.usbcamera.utils.CrashHandler;
 
 /**application class
@@ -18,6 +20,9 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Utils.init(this);
+        RTCSDK.initConfig(this); //测试的
+        RTCSDK.init(this, "4z3hlwrv42hbt"); //测试的
         mCrashHandler = CrashHandler.getInstance();
         mCrashHandler.init(getApplicationContext(), getClass());
     }

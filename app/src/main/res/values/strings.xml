@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">USBCamera</string>
+
+    <string name="empty_no_data">没有数据</string>
 </resources>
