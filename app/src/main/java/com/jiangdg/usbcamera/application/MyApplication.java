@@ -28,8 +28,8 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Utils.init(this);
-        RTCSDK.initConfig(this); //测试的
-        RTCSDK.init(this, "4z3hlwrv42hbt"); //测试的
+//        RTCSDK.initConfig(this); //测试的
+//        RTCSDK.init(this, "4z3hlwrv42hbt"); //测试的
         mCrashHandler = CrashHandler.getInstance();
         mCrashHandler.init(getApplicationContext(), getClass());
         DialogX.init(this);

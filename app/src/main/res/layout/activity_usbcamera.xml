@@ -97,6 +97,18 @@
         android:textColor="@color/colorWhite"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="00:00:00"
+        android:textColor="@color/RED"
+        android:textSize="14sp" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:id="@+id/btn_record"

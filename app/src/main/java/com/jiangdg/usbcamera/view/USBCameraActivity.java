@@ -3,6 +3,7 @@ package com.jiangdg.usbcamera.view;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -73,6 +75,11 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 
     private boolean isRequest;
     private boolean isPreview;
+
+
+    private int seconds = 0;
+    private boolean running = false; //计时状态
+    private boolean wasRunning = false; //保存running的状态
 
     private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
 
@@ -144,10 +151,52 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         }
     };
 
+    /**
+     * 注意 ui线程不能被堵塞，因此不能在ui线程中调用sleep方法
+     * 只允许ui线程更新界面，不能在后台线程更新界面
+     * <p>
+     * ** 使用ui线程的Handler定时更新 **
+     * 将任务封装到 Runnable的run方法中 ，通过Handler的
+     * post(立即提交任务)或postDelayed(实现定时调度)方法提交到ui线程
+     */
+    private void runTime() {
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+                         @Override
+                         public void run() {
+                             final TextView textView = findViewById(R.id.tv_time);
+                             int hour = seconds / 3600 % 24;
+                             int minute = seconds % 3600 / 60;
+                             String time = String.format("%02d:%02d:%02d", hour, minute, seconds % 60);
+                             textView.setText(time);
+                             if (running) seconds++;
+                             handler.postDelayed(this, 1000);
+                         }
+                     }
+        );
+    }
+
+    /**
+     * 保存状态
+     */
+    @Override
+    public void onSaveInstanceState(Bundle saveInstanceState) {
+        super.onSaveInstanceState(saveInstanceState);
+        saveInstanceState.putInt("seconds", seconds);
+        saveInstanceState.putBoolean("running", running);
+        saveInstanceState.putBoolean("wasRunning", wasRunning);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usbcamera);
+        //获取保存的状态
+        if (savedInstanceState != null) {
+            seconds = savedInstanceState.getInt("seconds");
+            running = savedInstanceState.getBoolean("running");
+            wasRunning = savedInstanceState.getBoolean("wasRunning");
+        }
         ButterKnife.bind(this);
         initView();
 
@@ -227,8 +276,12 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                 // if you only want to push stream,please call like this
                 // mCameraHelper.startPusher(listener);
                 showShortMsg("开始录制");
+                runTime();
+                running = true;
+                seconds = 0;
                 btnRecord.setImageResource(R.mipmap.stop);
             } else {
+                running = false;
                 FileUtil.releaseFile();
                 mCameraHelper.stopPusher();
                 showShortMsg("结束录制");
@@ -286,15 +339,31 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     protected void onStart() {
         super.onStart();
         // step.2 register USB event broadcast
+        if (wasRunning) running = true;
         if (mCameraHelper != null) {
             mCameraHelper.registerUSB();
         }
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (wasRunning) running = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        wasRunning = running;
+        running = false;
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         // step.3 unregister USB event broadcast
+        wasRunning = running;
+        running = false;
         if (mCameraHelper != null) {
             mCameraHelper.unregisterUSB();
         }

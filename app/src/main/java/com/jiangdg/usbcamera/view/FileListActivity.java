@@ -1,5 +1,6 @@
 package com.jiangdg.usbcamera.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -13,6 +14,7 @@ import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.blankj.utilcode.util.UriUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jiangdg.usbcamera.R;
 import com.jiangdg.usbcamera.UVCCameraHelper;
@@ -126,6 +128,22 @@ public class FileListActivity extends AppCompatActivity {
         swipeRefresh.setOnRefreshListener(this::getFileList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new FileListAdapter();
+        mAdapter.setOnItemClickListener((adapter, view, position) -> {
+            FileListBean item = mAdapter.getItem(position);
+            File file = new File(item.getFilePath());
+            if (!file.exists()) {
+                ToastUtils.showShort("当前文件不存在");
+                return;
+            }
+            //getUrl()获取文件目录，例如返回值为/storage/sdcard1/MIUI/music/mp3_hd/单色冰淇凌_单色凌.mp3
+            //获取父目录
+            File parentFlie = new File(file.getParent());
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setDataAndType(UriUtils.file2Uri(parentFlie), "*/*");
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+            startActivity(intent);
+        });
         recyclerView.setAdapter(mAdapter);
         mAdapter.setEmptyView(R.layout.empty_view);
     }
