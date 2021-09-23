@@ -29,9 +29,9 @@
 <!--	<usb-device class="14" subclass="9" />-->
 <!--	<usb-device class="2" subclass="0" />-->
 <!--	<usb-device class="6" subclass="-1" />-->
-	<usb-device class="240" subclass="1" />
-	<usb-device product-id="27648" vendor-id="2981" />
+<!--	<usb-device class="240" subclass="1" />-->
+<!--	<usb-device product-id="27648" vendor-id="2981" />-->
 
-	<usb-device class="239" subclass="2" />
-	<usb-device product-id="22594" vendor-id="3034" />
+<!--	<usb-device class="239" subclass="2" />-->
+<!--	<usb-device product-id="22594" vendor-id="3034" />-->
 </usb>

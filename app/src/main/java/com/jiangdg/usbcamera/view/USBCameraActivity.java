@@ -3,7 +3,6 @@ package com.jiangdg.usbcamera.view;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
@@ -17,19 +16,21 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.blankj.utilcode.util.FileUtils;
+import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jiangdg.usbcamera.R;
 import com.jiangdg.usbcamera.UVCCameraHelper;
 import com.jiangdg.usbcamera.application.MyApplication;
-import com.jiangdg.usbcamera.utils.FileUtils;
+import com.jiangdg.usbcamera.utils.FileUtil;
+import com.kongzue.dialogx.dialogs.InputDialog;
 import com.serenegiant.usb.CameraDialog;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
@@ -37,6 +38,7 @@ import com.serenegiant.usb.common.AbstractUVCCameraHandler;
 import com.serenegiant.usb.encoder.RecordParams;
 import com.serenegiant.usb.widget.CameraViewInterface;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,18 +105,18 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 //                        mTextureView.setVisibility(View.GONE);
 //                    }
 //                });
-                showShortMsg(device.getDeviceName() + " is out");
+                showShortMsg(device.getDeviceName() + "设备断开");
             }
         }
 
         @Override
         public void onConnectDev(UsbDevice device, boolean isConnected) {
             if (!isConnected) {
-                showShortMsg("fail to connect,please check resolution params");
+                showShortMsg("连接失败,请检查摄像头");
                 isPreview = false;
             } else {
                 isPreview = true;
-                showShortMsg("connecting");
+                showShortMsg("连接中");
                 // initialize seekbar
                 // need to wait UVCCamera initialize over
                 new Thread(new Runnable() {
@@ -138,7 +140,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 
         @Override
         public void onDisConnectDev(UsbDevice device) {
-            showShortMsg("disconnecting");
+            showShortMsg("断开连接");
         }
     };
 
@@ -164,7 +166,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
             if (!mCameraHelper.isPushing()) {
                 String videoPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
 
-//                    FileUtils.createfile(FileUtils.ROOT_PATH + "test666.h264");
+//                    FileUtil.createfile(FileUtil.ROOT_PATH + "test666.h264");
                 // if you want to record,please create RecordParams like this
                 RecordParams params = new RecordParams();
                 params.setRecordPath(videoPath);
@@ -177,7 +179,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                     public void onEncodeResult(byte[] data, int offset, int length, long timestamp, int type) {
                         // type = 1,h264 video stream
                         if (type == 1) {
-                            FileUtils.putFileStream(data, offset, length);
+                            FileUtil.putFileStream(data, offset, length);
                         }
                         // type = 0,aac audio stream
                         if (type == 0) {
@@ -187,10 +189,39 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 
                     @Override
                     public void onRecordResult(String videoPath) {
-                        if (TextUtils.isEmpty(videoPath)) {
+                        if (TextUtils.isEmpty(videoPath) || !FileUtils.isFileExists(videoPath)) {
                             return;
                         }
-                        new Handler(getMainLooper()).post(() -> Toast.makeText(USBCameraActivity.this, "save videoPath:" + videoPath, Toast.LENGTH_SHORT).show());
+                        new InputDialog("重命名", "请输入 胸围-胸宽-体斜长,例: 67.3-45.4-89.4", "确定", "取消", "")
+                                .setCancelable(false)
+                                .setOkButton((baseDialog, v1, inputStr) -> {
+                                    if (ObjectUtils.isEmpty(inputStr)) {
+                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+                                        return true;
+                                    }
+                                    String[] split = inputStr.split("-");
+                                    if (ObjectUtils.isEmpty(split)) {
+                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+                                        return true;
+                                    }
+                                    if (split.length != 3) {
+                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+                                        return true;
+                                    }
+                                    for (String s : split) {
+                                        try {
+                                            Double.parseDouble(s);
+                                        } catch (NumberFormatException e) {
+                                            showShortMsg("请检查输入格式,例如: 60.2-30.4-80.9");
+                                            return true;
+                                        }
+                                    }
+                                    File file = new File(videoPath);
+                                    FileUtils.rename(file, inputStr + "-" + file.getName());
+                                    return false;
+                                })
+                                .show();
+//                        new Handler(getMainLooper()).post(() -> Toast.makeText(USBCameraActivity.this, "save videoPath:" + videoPath, Toast.LENGTH_SHORT).show());
                     }
                 });
                 // if you only want to push stream,please call like this
@@ -198,19 +229,14 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                 showShortMsg("开始录制");
                 btnRecord.setImageResource(R.mipmap.stop);
             } else {
-                FileUtils.releaseFile();
+                FileUtil.releaseFile();
                 mCameraHelper.stopPusher();
                 showShortMsg("结束录制");
                 btnRecord.setImageResource(R.mipmap.record);
             }
         });
 
-        mCameraHelper.setOnPreviewFrameListener(new AbstractUVCCameraHandler.OnPreViewResultListener() {
-            @Override
-            public void onPreviewResult(byte[] nv21Yuv) {
-                Log.d(TAG, "onPreviewResult: " + nv21Yuv.length);
-            }
-        });
+        mCameraHelper.setOnPreviewFrameListener(nv21Yuv -> Log.d(TAG, "onPreviewResult: " + nv21Yuv.length));
     }
 
     private void initView() {
@@ -381,7 +407,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        FileUtils.releaseFile();
+        FileUtil.releaseFile();
         // step.4 release uvc camera resources
         if (mCameraHelper != null) {
             mCameraHelper.release();
@@ -389,7 +415,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     }
 
     private void showShortMsg(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        ToastUtils.showShort(msg);
     }
 
     @Override

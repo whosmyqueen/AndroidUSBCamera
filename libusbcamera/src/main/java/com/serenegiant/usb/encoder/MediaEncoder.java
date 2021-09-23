@@ -6,7 +6,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.jiangdg.usbcamera.utils.FileUtils;
+import com.jiangdg.usbcamera.utils.FileUtil;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -149,7 +149,7 @@ public abstract class MediaEncoder implements Runnable {
         boolean localRequestDrain;
 		boolean localIsNotExit;
 		// 创建h264
-		FileUtils.createfile(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test222.h264");
+		FileUtil.createfile(Environment.getExternalStorageDirectory().getAbsolutePath()+"/test222.h264");
 
         while (isRunning) {
         	synchronized (mSync) {
@@ -184,7 +184,7 @@ public abstract class MediaEncoder implements Runnable {
         	mRequestStop = true;
             mIsCapturing = false;
         }
-		FileUtils.releaseFile();
+		FileUtil.releaseFile();
 	}
 
 	/*
@@ -507,14 +507,14 @@ public abstract class MediaEncoder implements Runnable {
 										mBufferInfo.presentationTimeUs / 1000,TYPE_VIDEO);
 							}
 							// 保存数据流到文件
-							FileUtils.putFileStream(h264, 0,mPpsSps.length + mBufferInfo.size);
+							FileUtil.putFileStream(h264, 0,mPpsSps.length + mBufferInfo.size);
 						} else {
 							encodedData.get(h264, 0, mBufferInfo.size);
 							if(mListener != null) {
 								mListener.onEncodeResult(h264, 0,mBufferInfo.size,
 										mBufferInfo.presentationTimeUs / 1000,TYPE_VIDEO);
 							}
-							FileUtils.putFileStream(h264, 0,mBufferInfo.size);
+							FileUtil.putFileStream(h264, 0,mBufferInfo.size);
 						}
 					} else if(mTrackIndex == 1){
 						mBuffer.clear();

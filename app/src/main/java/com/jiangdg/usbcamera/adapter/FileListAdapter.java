@@ -1,5 +1,7 @@
 package com.jiangdg.usbcamera.adapter;
 
+import android.widget.ProgressBar;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.jiangdg.usbcamera.R;
@@ -24,5 +26,25 @@ public class FileListAdapter extends BaseQuickAdapter<FileListBean, BaseViewHold
     protected void convert(@NotNull BaseViewHolder helper, @NotNull FileListBean item) {
         helper.setText(R.id.tv_name, item.getFileName());
         helper.setText(R.id.tv_content, item.getFilePath());
+        helper.setGone(R.id.tv_status, item.getStatus() == 1);
+        String status = "";
+        switch (item.getStatus()) {
+            case 0:
+                status = "未上传";
+                break;
+            case 1:
+                status = "上传中";
+                break;
+            case 2:
+                status = "上传完成";
+                break;
+            case 3:
+                status = "上传失败";
+                break;
+        }
+        helper.setText(R.id.tv_status, status);
+        helper.setGone(R.id.pb_progress, item.getStatus() != 1);
+        ProgressBar progressBar = helper.getView(R.id.pb_progress);
+        progressBar.setProgress(item.getProgress());
     }
 }

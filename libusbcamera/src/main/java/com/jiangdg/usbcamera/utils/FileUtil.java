@@ -12,7 +12,7 @@ import java.io.IOException;
  * Created by jiangdongguo on 2017/10/18.
  */
 
-public class FileUtils {
+public class FileUtil {
 
     private static BufferedOutputStream outputStream;
     public static String ROOT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator;

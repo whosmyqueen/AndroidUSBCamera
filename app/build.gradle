@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+
     compileSdkVersion rootProject.ext.versionCompiler
     defaultConfig {
         applicationId "com.jiangdg.usbcamera"
@@ -8,8 +9,19 @@ android {
         targetSdkVersion rootProject.ext.versionTarget
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionNameString
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                        rxhttp_rxjava : '3.1.1',
+                        rxhttp_package: 'rxhttp'
+                ]
+            }
+        }
     }
+
     signingConfigs {
         release {
             keyAlias 'innovationai'
@@ -30,6 +42,7 @@ android {
         sourceCompatibility rootProject.ext.javaSourceCompatibility
         targetCompatibility rootProject.ext.javaTargetCompatibility
     }
+
     lintOptions {
         disable 'InvalidPackage'
         disable "ResourceType"
@@ -52,6 +65,7 @@ dependencies {
     implementation 'com.innovation.ai:technical-support:1.0.38'
 
     implementation 'com.blankj:utilcodex:1.30.6'
+
     implementation 'io.reactivex.rxjava3:rxjava:3.1.1'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.github.liujingxing.rxlife:rxlife-rxjava3:2.2.1'
@@ -59,7 +73,11 @@ dependencies {
     implementation 'com.github.liujingxing.rxhttp:rxhttp:2.6.8'
     //Use the annotationProcessor instead of kapt, if you use Java
     annotationProcessor 'com.github.liujingxing.rxhttp:rxhttp-compiler:2.6.8'
+
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.6'
+
+    def dialogx_version = "0.0.43.beta12"
+    implementation "com.github.kongzue.DialogX:DialogX:${dialogx_version}"
 
     compileOnly 'org.projectlombok:lombok:1.18.16'
     annotationProcessor 'org.projectlombok:lombok:1.18.16'

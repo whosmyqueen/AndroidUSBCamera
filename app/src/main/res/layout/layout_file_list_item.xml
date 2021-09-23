@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
@@ -16,6 +16,7 @@
         android:textSize="14sp" />
 
     <TextView
+        android:layout_below="@+id/tv_name"
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,8 +28,30 @@
         android:textSize="12sp" />
 
     <View
+        android:layout_below="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="10dp"
         android:background="@color/color_divider_line" />
-</LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="24dp"
+        android:text="状态"
+        android:textColor="@color/GREEN" />
+
+    <ProgressBar
+        android:id="@+id/pb_progress"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="24dp"
+        android:max="100"
+        android:progress="0"
+        android:visibility="gone" />
+</RelativeLayout>

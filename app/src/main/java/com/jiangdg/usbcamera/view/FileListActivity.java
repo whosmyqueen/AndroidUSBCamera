@@ -9,14 +9,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.blankj.utilcode.util.CollectionUtils;
 import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.ObjectUtils;
+import com.blankj.utilcode.util.ToastUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jiangdg.usbcamera.R;
 import com.jiangdg.usbcamera.UVCCameraHelper;
+import com.jiangdg.usbcamera.UploadResultBean;
 import com.jiangdg.usbcamera.adapter.FileListAdapter;
 import com.jiangdg.usbcamera.adapter.bean.FileListBean;
 import com.jiangdg.usbcamera.application.MyApplication;
+import com.kongzue.dialogx.dialogs.InputDialog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,6 +28,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import rxhttp.RxHttp;
 
 public class FileListActivity extends AppCompatActivity {
 
@@ -38,6 +44,7 @@ public class FileListActivity extends AppCompatActivity {
 
     private FileListAdapter mAdapter;
     private File videosDir;
+    private File videosOkDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +52,74 @@ public class FileListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_file_list);
         ButterKnife.bind(this);
         String s = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/";
+        String okPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos-ok/";
         videosDir = new File(s);
+        videosOkDir = new File(okPath);
         if (!FileUtils.isFileExists(videosDir)) {
             FileUtils.createOrExistsDir(videosDir);
         }
+        if (!FileUtils.isFileExists(videosOkDir)) {
+            FileUtils.createOrExistsDir(videosOkDir);
+        }
         toolbar.setNavigationOnClickListener(v -> finish());
+        btn_upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new InputDialog("提示", "请输入采集者编号", "确定", "取消", "")
+                        .setCancelable(false)
+                        .setOkButton((baseDialog, v1, inputStr) -> {
+                            if (ObjectUtils.isEmpty(inputStr)) {
+                                ToastUtils.showShort("请输入采集者编号");
+                                return true;
+                            }
+                            uploadFiles(inputStr);
+                            return false;
+                        })
+                        .show();
+
+            }
+        });
         initAdapter();
         getFileList();
+    }
+
+    private void uploadFiles(String userCode) {
+        List<FileListBean> data = mAdapter.getData();
+        if (CollectionUtils.isEmpty(data)) {
+            ToastUtils.showShort("请采集数据后再提交");
+            return;
+        }
+        for (int i = 0; i < data.size(); i++) {
+            FileListBean datum = data.get(i);
+            File file = new File(datum.getFilePath());
+            if (!FileUtils.isFileExists(file)) {
+                continue;
+            }
+            int finalI = i;
+            RxHttp.postForm("http://119.253.84.114:9317/video/cow")
+                    .addFile("cow", file)
+                    .upload(AndroidSchedulers.mainThread(), progress -> {
+                        datum.setStatus(1);
+                        datum.setProgress(progress.getProgress());
+                        mAdapter.notifyItemChanged(finalI);
+                    })
+                    .add("code", userCode)
+                    .add("md5sum", FileUtils.getFileMD5ToString(file))
+                    .asClass(UploadResultBean.class).subscribe(result -> {
+                if (result.getStatus() != 1) {
+                    datum.setStatus(3);
+                    return;
+                }
+                datum.setStatus(2);
+
+                FileUtils.move(file, new File(videosOkDir + File.separator + file.getName()));
+                mAdapter.notifyItemChanged(finalI);
+            }, throwable -> {
+                datum.setStatus(3);
+                mAdapter.notifyItemChanged(finalI);
+            });
+
+        }
     }
 
     private void initAdapter() {
