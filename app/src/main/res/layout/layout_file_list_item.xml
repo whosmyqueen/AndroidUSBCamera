@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <TextView
@@ -44,14 +45,17 @@
         android:text="状态"
         android:textColor="@color/GREEN" />
 
-    <ProgressBar
+    <com.jiangdg.usbcamera.view.CircleProgressView
         android:id="@+id/pb_progress"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:visibility="visible"
+        app:backColor="#E6DBDBDB"
+        app:backWidth="4dp"
+        app:progColor="#20AEFF"
+        app:progWidth="4dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="24dp"
-        android:max="100"
-        android:progress="0"
-        android:visibility="gone" />
+        app:progress="85" />
 </RelativeLayout>

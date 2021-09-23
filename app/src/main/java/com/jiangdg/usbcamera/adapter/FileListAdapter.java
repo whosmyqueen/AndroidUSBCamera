@@ -1,11 +1,10 @@
 package com.jiangdg.usbcamera.adapter;
 
-import android.widget.ProgressBar;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.viewholder.BaseViewHolder;
 import com.jiangdg.usbcamera.R;
 import com.jiangdg.usbcamera.adapter.bean.FileListBean;
+import com.jiangdg.usbcamera.view.CircleProgressView;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -44,7 +43,7 @@ public class FileListAdapter extends BaseQuickAdapter<FileListBean, BaseViewHold
         }
         helper.setText(R.id.tv_status, status);
         helper.setGone(R.id.pb_progress, item.getStatus() != 1);
-        ProgressBar progressBar = helper.getView(R.id.pb_progress);
+        CircleProgressView progressBar = helper.getView(R.id.pb_progress);
         progressBar.setProgress(item.getProgress());
     }
 }
