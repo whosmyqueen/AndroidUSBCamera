@@ -2,10 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_recording"
-        android:title="录像"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/menu_focus"
         android:title="对焦"
         app:showAsAction="never" />

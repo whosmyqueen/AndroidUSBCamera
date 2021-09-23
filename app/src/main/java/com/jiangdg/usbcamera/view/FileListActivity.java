@@ -49,12 +49,7 @@ public class FileListActivity extends AppCompatActivity {
         if (!FileUtils.isFileExists(videosDir)) {
             FileUtils.createOrExistsDir(videosDir);
         }
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
         initAdapter();
         getFileList();
     }

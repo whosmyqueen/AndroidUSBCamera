@@ -45,7 +45,7 @@
             android:layout_weight="1"
             android:paddingBottom="7dp"
             android:paddingTop="7dp"
-            android:text="对比度(contrast)"
+            android:text="对比度"
             android:textColor="@color/colorWhite" />
 
         <SeekBar
@@ -71,7 +71,7 @@
             android:layout_weight="1"
             android:paddingBottom="7dp"
             android:paddingTop="7dp"
-            android:text="亮度(brightness)"
+            android:text="亮度"
             android:textColor="@color/colorWhite" />
 
         <SeekBar
@@ -85,6 +85,7 @@
         android:id="@+id/switch_rec_voice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_alignLeft="@+id/llayout_brightness"
         android:layout_alignStart="@+id/llayout_brightness"
         android:layout_below="@+id/toolbar"
@@ -96,4 +97,12 @@
         android:textColor="@color/colorWhite"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:id="@+id/btn_record"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/llayout_brightness"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:src="@mipmap/record" />
 </RelativeLayout>

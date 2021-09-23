@@ -24,6 +24,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.blankj.utilcode.util.ToastUtils;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jiangdg.usbcamera.R;
 import com.jiangdg.usbcamera.UVCCameraHelper;
 import com.jiangdg.usbcamera.application.MyApplication;
@@ -59,6 +61,9 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     SeekBar mSeekContrast;
     @BindView(R.id.switch_rec_voice)
     Switch mSwitchVoice;
+    @BindView(R.id.btn_record)
+    FloatingActionButton btnRecord;
+
 
     private UVCCameraHelper mCameraHelper;
     private CameraViewInterface mUVCCameraView;
@@ -148,9 +153,57 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         mUVCCameraView = (CameraViewInterface) mTextureView;
         mUVCCameraView.setCallback(this);
         mCameraHelper = UVCCameraHelper.getInstance();
-        mCameraHelper.setDefaultPreviewSize(2560, 1920);
+        mCameraHelper.setDefaultPreviewSize(1920, 1080);
         mCameraHelper.setDefaultFrameFormat(UVCCameraHelper.FRAME_FORMAT_MJPEG);
         mCameraHelper.initUSBMonitor(this, mUVCCameraView, listener);
+        btnRecord.setOnClickListener(v -> {
+            if (mCameraHelper == null || !mCameraHelper.isCameraOpened()) {
+                showShortMsg("摄像头连接失败,请重新拔插");
+                return;
+            }
+            if (!mCameraHelper.isPushing()) {
+                String videoPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
+
+//                    FileUtils.createfile(FileUtils.ROOT_PATH + "test666.h264");
+                // if you want to record,please create RecordParams like this
+                RecordParams params = new RecordParams();
+                params.setRecordPath(videoPath);
+                params.setRecordDuration(0);                        // auto divide saved,default 0 means not divided
+                params.setVoiceClose(mSwitchVoice.isChecked());    // is close voice
+
+                params.setSupportOverlay(true); // overlay only support armeabi-v7a & arm64-v8a
+                mCameraHelper.startPusher(params, new AbstractUVCCameraHandler.OnEncodeResultListener() {
+                    @Override
+                    public void onEncodeResult(byte[] data, int offset, int length, long timestamp, int type) {
+                        // type = 1,h264 video stream
+                        if (type == 1) {
+                            FileUtils.putFileStream(data, offset, length);
+                        }
+                        // type = 0,aac audio stream
+                        if (type == 0) {
+
+                        }
+                    }
+
+                    @Override
+                    public void onRecordResult(String videoPath) {
+                        if (TextUtils.isEmpty(videoPath)) {
+                            return;
+                        }
+                        new Handler(getMainLooper()).post(() -> Toast.makeText(USBCameraActivity.this, "save videoPath:" + videoPath, Toast.LENGTH_SHORT).show());
+                    }
+                });
+                // if you only want to push stream,please call like this
+                // mCameraHelper.startPusher(listener);
+                showShortMsg("开始录制");
+                btnRecord.setImageResource(R.mipmap.stop);
+            } else {
+                FileUtils.releaseFile();
+                mCameraHelper.stopPusher();
+                showShortMsg("结束录制");
+                btnRecord.setImageResource(R.mipmap.record);
+            }
+        });
 
         mCameraHelper.setOnPreviewFrameListener(new AbstractUVCCameraHandler.OnPreViewResultListener() {
             @Override
@@ -256,59 +309,12 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
 //                break;
             case R.id.menu_rtc:
                 // 远程协助
+
+                ToastUtils.showLong("开发中");
                 break;
             case R.id.menu_file_list:
                 // 文件列表
                 startActivity(new Intent(this, FileListActivity.class));
-                break;
-            case R.id.menu_recording:
-                if (mCameraHelper == null || !mCameraHelper.isCameraOpened()) {
-                    showShortMsg("sorry,camera open failed");
-                    return super.onOptionsItemSelected(item);
-                }
-                if (!mCameraHelper.isPushing()) {
-                    String videoPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis()
-                            + UVCCameraHelper.SUFFIX_MP4;
-
-//                    FileUtils.createfile(FileUtils.ROOT_PATH + "test666.h264");
-                    // if you want to record,please create RecordParams like this
-                    RecordParams params = new RecordParams();
-                    params.setRecordPath(videoPath);
-                    params.setRecordDuration(0);                        // auto divide saved,default 0 means not divided
-                    params.setVoiceClose(mSwitchVoice.isChecked());    // is close voice
-
-                    params.setSupportOverlay(true); // overlay only support armeabi-v7a & arm64-v8a
-                    mCameraHelper.startPusher(params, new AbstractUVCCameraHandler.OnEncodeResultListener() {
-                        @Override
-                        public void onEncodeResult(byte[] data, int offset, int length, long timestamp, int type) {
-                            // type = 1,h264 video stream
-                            if (type == 1) {
-                                FileUtils.putFileStream(data, offset, length);
-                            }
-                            // type = 0,aac audio stream
-                            if (type == 0) {
-
-                            }
-                        }
-
-                        @Override
-                        public void onRecordResult(String videoPath) {
-                            if (TextUtils.isEmpty(videoPath)) {
-                                return;
-                            }
-                            new Handler(getMainLooper()).post(() -> Toast.makeText(USBCameraActivity.this, "save videoPath:" + videoPath, Toast.LENGTH_SHORT).show());
-                        }
-                    });
-                    // if you only want to push stream,please call like this
-                    // mCameraHelper.startPusher(listener);
-                    showShortMsg("start record...");
-                    mSwitchVoice.setEnabled(false);
-                } else {
-                    FileUtils.releaseFile();
-                    mCameraHelper.stopPusher();
-                    showShortMsg("stop record...");
-                    mSwitchVoice.setEnabled(true);
-                }
                 break;
             case R.id.menu_resolution:
                 if (mCameraHelper == null || !mCameraHelper.isCameraOpened()) {
