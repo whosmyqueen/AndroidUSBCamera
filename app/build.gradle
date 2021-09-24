@@ -4,7 +4,7 @@ android {
 
     compileSdkVersion rootProject.ext.versionCompiler
     defaultConfig {
-        applicationId "com.whosmyqueen.usbcamera"
+        applicationId "com.jiangdg.usbcamera"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.versionTarget
         versionCode rootProject.ext.versionCode
