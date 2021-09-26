@@ -35,7 +35,7 @@ ext {
     // please modify it to 16
     minSdkVersion = 21
     versionCode = 100
-    versionNameString = '2.3.8.20210917'
+    versionNameString = '2.3.8.20210926'
     javaSourceCompatibility = JavaVersion.VERSION_1_8
     javaTargetCompatibility = JavaVersion.VERSION_1_8
 }
