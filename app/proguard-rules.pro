@@ -218,3 +218,4 @@ public static java.lang.String TABLENAME;
 -keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
 ##---------------End: proguard configuration for Gson  ----------
 -keep class com.serenegiant.usb.** { *; }
+-keep class com.jiangdg.usbcamera.** { *; }
