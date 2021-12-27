@@ -2,8 +2,11 @@ package com.jiangdg.usbcamera.view;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -22,6 +25,7 @@ import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.jiangdg.usbcamera.R;
@@ -117,7 +121,7 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         removePicture(PICTYPE_BUST);
         removePicture(PICTYPE_WIDTH);
         removePicture(PICTYPE_BODY);
-        Glide.with(btnVadio).clear(btnVadio);
+        Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnVadio);
         FileUtils.delete(parentPath);
 
         picBustPath = "";
@@ -404,43 +408,8 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
             if (requestCode == PICTYPE_VADIO) {
                 build = Uri.fromFile(new File(path));
                 vadioPath = path;
-                Glide.with(this).load(build).centerInside().into(btnVadio);
+                Glide.with(this).asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).load(build).centerInside().into(btnVadio);
             }
-//            else if (PictureConfig.CHOOSE_REQUEST == requestCode) {
-//                List<LocalMedia> result = PictureSelector.obtainMultipleResult(data);
-//                if (result.size() > 0) {
-//                    LocalMedia localMedia = result.get(0);
-//                    path = localMedia.getRealPath();
-//                    build = Uri.fromFile(new File(path));
-//                    switch (this.requestCode) {
-//                        case PICTYPE_BUST:
-////                            picBustPath = localMedia.getPath();
-//                            picBustPath = path;
-//                            Glide.with(btnChestBust).load(build).centerInside().into(btnChestBust);
-//                            break;
-//                        case PICTYPE_WIDTH:
-//                            picWidthPath = path;
-////                            picWidthPath = localMedia.getPath();
-//                            Glide.with(btnChestWidth).load(build).centerInside().into(btnChestWidth);
-//                            break;
-//                        case PICTYPE_BODY:
-////                            picBodyPath = localMedia.getPath();
-//                            picBodyPath = path;
-//                            Glide.with(btnBodyLength).load(build).centerInside().into(btnBodyLength);
-//                            break;
-//                    }
-//                }
-//            }
-//            if (requestCode == PICTYPE_WIDTH) {
-//                picWidthPath = path;
-//                Glide.with(this).load(build).centerInside().into(btnChestWidth);
-//            } else if (requestCode == PICTYPE_BODY) {
-//                picBodyPath = path;
-//                Glide.with(this).load(build).centerInside().into(btnBodyLength);
-//            } else if (requestCode == PICTYPE_VADIO) {
-//                vadioPath = path;
-//                Glide.with(this).load(build).centerInside().into(btnVadio);
-//            }
         }
     }
 
