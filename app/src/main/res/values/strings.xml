@@ -1,4 +1,28 @@
 <resources>
     <string name="app_name">USB摄像头采集</string>
     <string name="empty_no_data">没有数据</string>
+
+    <string name="title_take_picture">拍摄影像</string>
+
+
+    <string name="label_vadio">录像:</string>
+    <string name="label_chest_bust">胸围:</string>
+    <string name="label_chest_width">胸宽:</string>
+    <string name="label_body_length">体斜长:</string>
+    <string name="label_cm">cm</string>
+
+    <string name="hint_chest_bust">请输入胸围值</string>
+    <string name="hint_chest_width">请输入胸宽值</string>
+    <string name="hint_body_length">请输入体斜长值</string>
+
+    <string name="tip_example">示例图片</string>
+
+    <string name="btn_zip">开始打包文件</string>
+    <string name="btn_clean">清除</string>
+
+    <string name="fmt_zip_name">-%s-%s-%s.zip</string>
+
+
+
+
 </resources>

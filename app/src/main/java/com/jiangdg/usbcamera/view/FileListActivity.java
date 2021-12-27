@@ -27,6 +27,7 @@ import com.kongzue.dialogx.dialogs.InputDialog;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,7 +115,11 @@ public class FileListActivity extends AppCompatActivity {
                 }
                 datum.setStatus(2);
 
-                FileUtils.move(file, new File(videosOkDir + File.separator + file.getName()));
+                if (file.getName().endsWith(".zip"))//如果是压缩包的形式
+                    FileUtils.move(file.getParentFile(), new File(videosOkDir + File.separator + file.getParentFile().getName()));
+                else
+                    FileUtils.move(file, new File(videosOkDir + File.separator + file.getName()));
+
                 mAdapter.notifyItemChanged(finalI);
             }, throwable -> {
                 datum.setStatus(3);
@@ -158,7 +163,15 @@ public class FileListActivity extends AppCompatActivity {
             return;
         }
         for (File file : files) {
-            list.add(new FileListBean(file.getName(), file.getAbsolutePath()));
+            if (file.isDirectory()) {//如果是压缩包的形式
+                for (File f : Objects.requireNonNull(file.listFiles())) {
+                    if (f.getName().endsWith(".zip")) {
+                        list.add(new FileListBean(f.getName(), f.getAbsolutePath()));
+                    }
+                }
+            } else {
+                list.add(new FileListBean(file.getName(), file.getAbsolutePath()));
+            }
         }
         mAdapter.setList(list);
         swipeRefresh.setRefreshing(false);

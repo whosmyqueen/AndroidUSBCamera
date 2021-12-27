@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.PiczipActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimary"
+        android:gravity="center_horizontal"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dp_10"
+                android:paddingRight="@dimen/dp_10"
+                android:text="@string/title_take_picture"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_22" />
+
+            <TextView
+                android:id="@+id/btn_list"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="0dp"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dp_10"
+                android:paddingRight="@dimen/dp_10"
+                android:text="列表"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_22"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
+
+    </androidx.appcompat.widget.Toolbar>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/text_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_22"
+                android:layout_weight="1"
+                android:padding="@dimen/dp_10"
+                android:text="@string/label_vadio" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <ImageView
+                    android:id="@+id/iv_vadio"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/img_vadio" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/iv_vadio"
+                    android:background="@color/white30"
+                    android:text="@string/tip_example"
+                    android:textSize="@dimen/dp_22" />
+
+
+                <ImageView
+                    android:id="@+id/btn_vadio"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toRightOf="@id/iv_vadio"
+                    android:gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_add_pic"
+                    android:text="+"
+                    android:textSize="@dimen/dp_50" />
+
+                <ImageView
+                    android:id="@+id/btn_vadio_rm"
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_alignTop="@id/btn_vadio"
+                    android:layout_alignRight="@id/btn_vadio"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@mipmap/ic_close" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_chest_bust" />
+
+                <EditText
+                    android:id="@+id/edit_chest_bust"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:hint="@string/hint_chest_bust"
+                    android:inputType="numberDecimal"
+                    android:maxLength="16" />
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_cm" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <ImageView
+                    android:id="@+id/iv_chest_bust"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/img_chest_bust" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/btn_chest_bust"
+                    android:background="@color/white30"
+                    android:text="@string/tip_example"
+                    android:textSize="@dimen/dp_22" />
+
+
+                <ImageView
+                    android:id="@+id/btn_chest_bust"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toRightOf="@id/iv_chest_bust"
+                    android:gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_add_pic"
+                    android:textSize="@dimen/dp_50" />
+
+                <ImageView
+                    android:id="@+id/btn_chest_bust_rm"
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_alignTop="@id/btn_chest_bust"
+                    android:layout_alignRight="@id/btn_chest_bust"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@mipmap/ic_close" />
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_chest_width" />
+
+                <EditText
+                    android:id="@+id/edit_chest_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:hint="@string/hint_chest_width"
+                    android:inputType="numberDecimal"
+                    android:maxLength="16" />
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_cm" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <ImageView
+                    android:id="@+id/iv_chest_width"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/img_chest_width" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/iv_chest_width"
+                    android:background="@color/white30"
+                    android:text="@string/tip_example"
+                    android:textSize="@dimen/dp_22" />
+
+                <ImageView
+                    android:id="@+id/btn_chest_width"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toRightOf="@id/iv_chest_width"
+                    android:gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_add_pic"
+                    android:text="+"
+                    android:textSize="@dimen/dp_50" />
+
+                <ImageView
+                    android:id="@+id/btn_chest_width_rm"
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_alignTop="@id/btn_chest_width"
+                    android:layout_alignRight="@id/btn_chest_width"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@mipmap/ic_close" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/label_body_length" />
+
+                <EditText
+                    android:id="@+id/edit_body_length"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_5"
+                    android:hint="@string/hint_body_length"
+                    android:inputType="numberDecimal"
+                    android:maxLength="16" />
+
+                <TextView
+                    style="@style/text_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_cm" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/dp_10">
+
+                <ImageView
+                    android:id="@+id/iv_body_length"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/img_body_length" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/iv_body_length"
+                    android:background="@color/white30"
+                    android:text="@string/tip_example"
+                    android:textSize="@dimen/dp_22" />
+
+                <ImageView
+                    android:id="@+id/btn_body_length"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_200"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toRightOf="@id/iv_body_length"
+                    android:gravity="center"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/ic_add_pic"
+                    android:textSize="@dimen/dp_50" />
+
+                <ImageView
+                    android:id="@+id/btn_body_length_rm"
+                    android:layout_width="@dimen/dp_40"
+                    android:layout_height="@dimen/dp_40"
+                    android:layout_alignTop="@id/btn_body_length"
+                    android:layout_alignRight="@id/btn_body_length"
+                    android:layout_margin="@dimen/dp_5"
+                    android:background="@mipmap/ic_close" />
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_zip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="@dimen/dp_10"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:padding="@dimen/dp_5"
+                    android:text="@string/btn_zip"
+                    android:textColor="@color/white" />
+
+                <Button
+                    android:id="@+id/btn_clean"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="@dimen/dp_10"
+                    android:layout_weight="1"
+                    android:background="@color/colorPrimary"
+                    android:padding="@dimen/dp_5"
+                    android:text="@string/btn_clean"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

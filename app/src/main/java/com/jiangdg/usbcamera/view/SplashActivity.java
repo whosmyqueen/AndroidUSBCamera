@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -18,11 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.jiangdg.usbcamera.R;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -96,10 +91,16 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(SplashActivity.this, USBCameraActivity.class));
+//                startActivity(new Intent(SplashActivity.this, PiczipActivity.class));
+                startActivity(new Intent(SplashActivity.this, PiczipActivity.class));
                 SplashActivity.this.finish();
+//                String videoPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
+//
+//                Intent intent = new Intent(SplashActivity.this, USBCameraToolActivity.class);
+//                intent.putExtra("path",  videoPath +"/"+ "1.jgp");
+//                startActivityForResult(intent, 1);
             }
-        }, 3000);
+        }, 1000);
     }
 }
 

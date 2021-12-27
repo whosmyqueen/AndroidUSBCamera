@@ -80,6 +80,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     private int seconds = 0;
     private boolean running = false; //计时状态
     private boolean wasRunning = false; //保存running的状态
+    String videoPath = "";
 
     private UVCCameraHelper.OnMyDevConnectListener listener = new UVCCameraHelper.OnMyDevConnectListener() {
 
@@ -191,6 +192,8 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usbcamera);
+
+        videoPath = getIntent().getStringExtra("path");
         //获取保存的状态
         if (savedInstanceState != null) {
             seconds = savedInstanceState.getInt("seconds");
@@ -204,6 +207,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         mUVCCameraView = (CameraViewInterface) mTextureView;
         mUVCCameraView.setCallback(this);
         mCameraHelper = UVCCameraHelper.getInstance();
+//        mCameraHelper.setDefaultPreviewSize(1920, 1080);
         mCameraHelper.setDefaultPreviewSize(1920, 1080);
         mCameraHelper.setDefaultFrameFormat(UVCCameraHelper.FRAME_FORMAT_MJPEG);
         mCameraHelper.initUSBMonitor(this, mUVCCameraView, listener);
@@ -213,12 +217,11 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                 return;
             }
             if (!mCameraHelper.isPushing()) {
-                String videoPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
 
 //                    FileUtil.createfile(FileUtil.ROOT_PATH + "test666.h264");
                 // if you want to record,please create RecordParams like this
                 RecordParams params = new RecordParams();
-                params.setRecordPath(videoPath);
+                params.setRecordPath(videoPath + "/vadio");
                 params.setRecordDuration(0);                        // auto divide saved,default 0 means not divided
                 params.setVoiceClose(mSwitchVoice.isChecked());    // is close voice
 
@@ -241,35 +244,42 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
                         if (TextUtils.isEmpty(videoPath) || !FileUtils.isFileExists(videoPath)) {
                             return;
                         }
-                        new InputDialog("重命名", "请输入 胸围-胸宽-体斜长,例: 67.3-45.4-89.4", "确定", "取消", "")
-                                .setCancelable(false)
-                                .setOkButton((baseDialog, v1, inputStr) -> {
-                                    if (ObjectUtils.isEmpty(inputStr)) {
-                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
-                                        return true;
-                                    }
-                                    String[] split = inputStr.split("-");
-                                    if (ObjectUtils.isEmpty(split)) {
-                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
-                                        return true;
-                                    }
-                                    if (split.length != 3) {
-                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
-                                        return true;
-                                    }
-                                    for (String s : split) {
-                                        try {
-                                            Double.parseDouble(s);
-                                        } catch (NumberFormatException e) {
-                                            showShortMsg("请检查输入格式,例如: 60.2-30.4-80.9");
-                                            return true;
-                                        }
-                                    }
-                                    File file = new File(videoPath);
-                                    FileUtils.rename(file, inputStr + "-" + file.getName());
-                                    return false;
-                                })
-                                .show();
+
+                        Intent intent = new Intent();
+                        intent.putExtra("path", videoPath);
+                        setResult(RESULT_OK,intent);
+                        finish();
+
+
+//                        new InputDialog("重命名", "请输入 胸围-胸宽-体斜长,例: 67.3-45.4-89.4", "确定", "取消", "")
+//                                .setCancelable(false)
+//                                .setOkButton((baseDialog, v1, inputStr) -> {
+//                                    if (ObjectUtils.isEmpty(inputStr)) {
+//                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+//                                        return true;
+//                                    }
+//                                    String[] split = inputStr.split("-");
+//                                    if (ObjectUtils.isEmpty(split)) {
+//                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+//                                        return true;
+//                                    }
+//                                    if (split.length != 3) {
+//                                        showShortMsg("请检查输入格式,例如: 胸围-胸宽-体斜长");
+//                                        return true;
+//                                    }
+//                                    for (String s : split) {
+//                                        try {
+//                                            Double.parseDouble(s);
+//                                        } catch (NumberFormatException e) {
+//                                            showShortMsg("请检查输入格式,例如: 60.2-30.4-80.9");
+//                                            return true;
+//                                        }
+//                                    }
+//                                    File file = new File(videoPath);
+//                                    FileUtils.rename(file, inputStr + "-" + file.getName());
+//                                    return false;
+//                                })
+//                                .show();
 //                        new Handler(getMainLooper()).post(() -> Toast.makeText(USBCameraActivity.this, "save videoPath:" + videoPath, Toast.LENGTH_SHORT).show());
                     }
                 });
@@ -522,5 +532,11 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
             mCameraHelper.stopPreview();
             isPreview = false;
         }
+    }
+
+
+    private void startTackPicture() {
+//        mCameraHelper.capturePicture();
+
     }
 }
