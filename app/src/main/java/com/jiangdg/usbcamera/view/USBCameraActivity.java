@@ -208,7 +208,7 @@ public class USBCameraActivity extends AppCompatActivity implements CameraDialog
         mUVCCameraView.setCallback(this);
         mCameraHelper = UVCCameraHelper.getInstance();
 //        mCameraHelper.setDefaultPreviewSize(1920, 1080);
-        mCameraHelper.setDefaultPreviewSize(1920, 1080);
+        mCameraHelper.setDefaultPreviewSize(640, 480);
         mCameraHelper.setDefaultFrameFormat(UVCCameraHelper.FRAME_FORMAT_MJPEG);
         mCameraHelper.initUSBMonitor(this, mUVCCameraView, listener);
         btnRecord.setOnClickListener(v -> {

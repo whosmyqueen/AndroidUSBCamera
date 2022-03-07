@@ -3,26 +3,31 @@ buildscript {
     repositories {
         mavenCentral()
         maven { url 'https://maven.aliyun.com/repository/public' }
-        maven {
-            credentials {
-                username '6087bbf08e4139b4d7939626'
-                password 'C[js5hl77E6b'
-            }
-            url 'https://packages.aliyun.com/maven/repository/2099367-release-BQsgkU/'
-        }
-        maven {
-            credentials {
-                username '6087bbf08e4139b4d7939626'
-                password 'C[js5hl77E6b'
-            }
-            url 'https://packages.aliyun.com/maven/repository/2099367-snapshot-EUD1nV/'
-        }
         maven { url 'https://maven.aliyun.com/repository/google/' }
         maven { url 'https://maven.aliyun.com/repository/jcenter/' }
         maven { url 'https://maven.aliyun.com/repository/central/' }
         maven { url 'https://gitee.com/liuchaoya/libcommon/raw/master/repository/' }
         maven { url "http://maven.rongcloud.cn/repository/maven-releases/" }
         maven { url 'https://jitpack.io' }
+        maven {
+            credentials {
+//                username '6087bbf08e4139b4d7939626'
+                username '6087e4ca3a10edbf3697b7bb'
+                password 'MSwqKNPwnwH0'
+//                password 'C[js5hl77E6b'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2099367-release-BQsgkU/'
+        }
+        maven {
+            credentials {
+//                username '6087bbf08e4139b4d7939626'
+//                password 'C[js5hl77E6b'
+                username '6087e4ca3a10edbf3697b7bb'
+                password 'MSwqKNPwnwH0'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2099367-snapshot-EUD1nV/'
+        }
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.1'
@@ -36,15 +41,19 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/public' }
         maven {
             credentials {
-                username '6087bbf08e4139b4d7939626'
-                password 'C[js5hl77E6b'
+//                username '6087bbf08e4139b4d7939626'
+//                password 'C[js5hl77E6b'
+                username '6087e4ca3a10edbf3697b7bb'
+                password 'MSwqKNPwnwH0'
             }
             url 'https://packages.aliyun.com/maven/repository/2099367-release-BQsgkU/'
         }
         maven {
             credentials {
-                username '6087bbf08e4139b4d7939626'
-                password 'C[js5hl77E6b'
+//                username '6087bbf08e4139b4d7939626'
+//                password 'C[js5hl77E6b'
+                username '6087e4ca3a10edbf3697b7bb'
+                password 'MSwqKNPwnwH0'
             }
             url 'https://packages.aliyun.com/maven/repository/2099367-snapshot-EUD1nV/'
         }
