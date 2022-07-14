@@ -20,6 +20,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.blankj.utilcode.util.ZipUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.JsonArray;
@@ -58,6 +59,7 @@ import butterknife.ButterKnife;
  * 拍摄完图片后在拍摄的图片右上角增加删除按钮，删除成功后可以继续拍摄；
  * 所有影像拍摄完成后，点击保存后将video.mp4、1.jpg、2.jpg、3.jpg以及weight.txt保存到一个zip中存储在本地，文件命名为：时间戳.zip；
  * weight.txt为json格式[{"name":"1.jpg","val":14.31},{"name":"2.jpg","val":14.31},{"name":"3.jpg","val":14.31},{"name":"video.mp4","val":}]
+ * 20220714新加两直尺的胸宽及体斜长 放到 4 5 中
  * by wenhaiyang 211223
  */
 public class PiczipActivity extends AppCompatActivity implements View.OnClickListener {
@@ -98,14 +100,34 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
     @BindView(R.id.btn_list)
     TextView btnList;
 
+    //直尺
+    @BindView(R.id.edit_ruler_chest_width)
+    EditText editRulerChest;
+    @BindView(R.id.btn_ruler_chest_width)
+    ImageView btnRulerChest;
+    @BindView(R.id.btn_ruler_chest_width_rm)
+    ImageView btnRulerChestRm;
+
+    @BindView(R.id.edit_ruler_body_length)
+    EditText editRulerBody;
+    @BindView(R.id.btn_ruler_body_length)
+    ImageView btnRulerBody;
+    @BindView(R.id.btn_ruler_body_length_rm)
+    ImageView btnRulerBodyRm;
+
+
     private final int PICTYPE_BUST = 1;
     private final int PICTYPE_WIDTH = 2;
     private final int PICTYPE_BODY = 3;
     private final int PICTYPE_VADIO = 4;
+    private final int PICTYPE_RULER_WIDTH = 5;
+    private final int PICTYPE_RULER_BODY = 6;
 
     private String picBustPath = "";
     private String picWidthPath = "";
     private String picBodyPath = "";
+    private String picRulerWidthPath = "";//直尺
+    private String picRulerBodyPath = "";
     private String vadioPath = "";
     private String parentPath = "";
 
@@ -141,6 +163,13 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         btnWidthRm.setOnClickListener(this);
         btnBodyRm.setOnClickListener(this);
         btnClean.setOnClickListener(this);
+
+        btnRulerChest.setOnClickListener(this);
+        btnRulerChestRm.setOnClickListener(this);
+        btnRulerBody.setOnClickListener(this);
+        btnRulerBodyRm.setOnClickListener(this);
+
+
         btnList.setOnClickListener(this);
 
         editBodyLength.addTextChangedListener(new CustTextWatcher(editBodyLength, 2));
@@ -182,9 +211,34 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.btn_vadio_rm:
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnVadio);
                 break;
+            case R.id.btn_ruler_chest_width:
+                tackPicture(PICTYPE_RULER_WIDTH);
+                break;
+            case R.id.btn_ruler_chest_width_rm:
+                removePicture(PICTYPE_RULER_WIDTH);
+                break;
+            case R.id.btn_ruler_body_length:
+                tackPicture(PICTYPE_RULER_BODY);
+                break;
+            case R.id.btn_ruler_body_length_rm:
+                removePicture(PICTYPE_RULER_BODY);
+                break;
             case R.id.btn_zip:
                 zipValue();
                 break;
+//            @BindView(R.id.edit_ruler_chest_width)
+//            EditText editRulerChest;
+//            @BindView(R.id.btn_ruler_chest_width)
+//            ImageView btnRulerChest;
+//            @BindView(R.id.btn_ruler_chest_width_rm)
+//            ImageView btnRulerChestRm;
+//
+//            @BindView(R.id.edit_ruler_body_length)
+//            EditText editRulerBody;
+//            @BindView(R.id.btn_ruler_body_length)
+//            ImageView btnRulerBody;
+//            @BindView(R.id.btn_ruler_body_length_rm)
+//            ImageView btnRulerBodyRm;
         }
     }
 
@@ -237,6 +291,14 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                                     picBodyPath = path;
                                     Glide.with(btnChestWidth).load(build).centerInside().into(btnBodyLength);
                                     break;
+                                case PICTYPE_RULER_WIDTH:
+                                    picRulerWidthPath = path;
+                                    Glide.with(btnRulerChest).load(build).centerInside().into(btnRulerChest);
+                                    break;
+                                case PICTYPE_RULER_BODY:
+                                    picRulerBodyPath = path;
+                                    Glide.with(btnRulerBody).load(build).centerInside().into(btnRulerBody);
+                                    break;
                             }
                         } else {
 //                            ToastUtils.error("拍照数据为空");
@@ -275,6 +337,18 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 Glide.with(btnBodyLength).load(R.mipmap.ic_add_pic).centerCrop().into(btnBodyLength);
                 picBodyPath = "";
                 break;
+            case PICTYPE_RULER_WIDTH:
+                FileUtils.delete(picRulerWidthPath);
+                editRulerChest.setText("");
+                Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnRulerChest);
+                picRulerWidthPath = "";
+                break;
+            case PICTYPE_RULER_BODY:
+                FileUtils.delete(picRulerBodyPath);
+                editRulerBody.setText("");
+                Glide.with(btnRulerBody).load(R.mipmap.ic_add_pic).centerCrop().into(btnRulerBody);
+                picRulerBodyPath = "";
+                break;
         }
     }
 
@@ -285,10 +359,14 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         if (editChestBust.getText().toString().isEmpty() ||
                 editChestWidth.getText().toString().isEmpty() ||
                 editBodyLength.getText().toString().isEmpty() ||
+                editRulerBody.getText().toString().isEmpty() ||
+                editRulerChest.getText().toString().isEmpty() ||
                 picBustPath.isEmpty() ||
                 picWidthPath.isEmpty() ||
-                vadioPath.isEmpty() ||
-                picBodyPath.isEmpty()
+                picBodyPath.isEmpty() ||
+                picRulerWidthPath.isEmpty() ||
+                picRulerBodyPath.isEmpty() ||
+                vadioPath.isEmpty()
         ) {
             ToastUtils.showShort("请完善信息");
             return;
@@ -313,6 +391,14 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 obj3.addProperty("val", editBodyLength.getText().toString().trim());
                 obj3.addProperty("name", "3.jpg");
                 array.add(obj3);
+                JsonObject obj4 = new JsonObject();
+                obj4.addProperty("val", editRulerChest.getText().toString().trim());
+                obj4.addProperty("name", "4.jpg");
+                array.add(obj4);
+                JsonObject obj5 = new JsonObject();
+                obj5.addProperty("val", editBodyLength.getText().toString().trim());
+                obj5.addProperty("name", "5.jpg");
+                array.add(obj5);
                 JsonObject obj = new JsonObject();
                 obj.addProperty("val", "");
                 obj.addProperty("name", "video.mp4");
@@ -327,17 +413,33 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 files.add(new File(picBustPath));
                 files.add(new File(picWidthPath));
                 files.add(new File(picBodyPath));
-                String zipFile = parentPath + "/" + System.currentTimeMillis() + String.format(getString(R.string.fmt_zip_name), editChestBust.getText().toString().trim(), editChestWidth.getText().toString().trim(), editBodyLength.getText().toString().trim());
+                files.add(new File(picRulerWidthPath));
+                files.add(new File(picRulerBodyPath));
+                String zipFile = parentPath + "/" + System.currentTimeMillis() + String.format(getString(R.string.fmt_zip_name), editChestBust.getText().toString().trim(), editChestWidth.getText().toString().trim(),
+                        editBodyLength.getText().toString().trim(), editRulerChest.getText().toString().trim(), editRulerBody.getText().toString().trim());
 //                ToastUtils.showLong(parentPath + "     " + files.size());
 
-                zipFile(files, zipFile);
-                ToastUtils.showLong("打包完成，可以上传");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(PiczipActivity.this, FileListActivity.class));
+//                zipFile(files, zipFile);
+                try {
+                    boolean b = ZipUtils.zipFiles(files, new File(zipFile));
+                    if (b) {
+
+                        ToastUtils.showLong("打包完成，可以上传");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                startActivity(new Intent(PiczipActivity.this, FileListActivity.class));
+                            }
+                        });
+                    } else {
+                        ToastUtils.showLong("打包失败！");
                     }
-                });
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ToastUtils.showLong("打包失败！");
+
+                }
 
 
             }
@@ -382,7 +484,7 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                     ToastUtils.showLong(e.getMessage());
                 }
             });
-            FileUtils.delete(destFile);
+//            FileUtils.delete(destFile);
             e.printStackTrace();
         }
     }

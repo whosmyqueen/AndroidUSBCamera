@@ -9,6 +9,8 @@
     <string name="label_chest_bust">胸围:</string>
     <string name="label_chest_width">胸宽:</string>
     <string name="label_body_length">体斜长:</string>
+    <string name="label_ruler_chest_width">直尺胸宽:</string>
+    <string name="label_ruler_body_length">直尺体斜长:</string>
     <string name="label_cm">cm</string>
 
     <string name="hint_chest_bust">请输入胸围值</string>
@@ -20,7 +22,7 @@
     <string name="btn_zip">开始打包文件</string>
     <string name="btn_clean">清除</string>
 
-    <string name="fmt_zip_name">-%s-%s-%s.zip</string>
+    <string name="fmt_zip_name">-%s-%s-%s-%s-%s.zip</string>
 
 
 
