@@ -135,12 +135,16 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         removePicture(PICTYPE_BUST);
         removePicture(PICTYPE_WIDTH);
         removePicture(PICTYPE_BODY);
+        removePicture(PICTYPE_RULER_WIDTH);
+        removePicture(PICTYPE_RULER_BODY);
         Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnVadio);
         FileUtils.delete(parentPath);
 
         picBustPath = "";
         picWidthPath = "";
         picBodyPath = "";
+        picRulerWidthPath = "";
+        picRulerBodyPath = "";
         vadioPath = "";
         parentPath = "";
     }
@@ -320,31 +324,31 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
     private void removePicture(int picType) {
         switch (picType) {
             case PICTYPE_BUST:
-                FileUtils.delete(picBustPath);
+//                FileUtils.delete(picBustPath);
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnChestBust);
                 editChestBust.setText("");
                 picBustPath = "";
                 break;
             case PICTYPE_WIDTH:
-                FileUtils.delete(picWidthPath);
+//                FileUtils.delete(picWidthPath);
                 editChestWidth.setText("");
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnChestWidth);
                 picWidthPath = "";
                 break;
             case PICTYPE_BODY:
-                FileUtils.delete(picBodyPath);
+//                FileUtils.delete(picBodyPath);
                 editBodyLength.setText("");
                 Glide.with(btnBodyLength).load(R.mipmap.ic_add_pic).centerCrop().into(btnBodyLength);
                 picBodyPath = "";
                 break;
             case PICTYPE_RULER_WIDTH:
-                FileUtils.delete(picRulerWidthPath);
+//                FileUtils.delete(picRulerWidthPath);
                 editRulerChest.setText("");
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnRulerChest);
                 picRulerWidthPath = "";
                 break;
             case PICTYPE_RULER_BODY:
-                FileUtils.delete(picRulerBodyPath);
+//                FileUtils.delete(picRulerBodyPath);
                 editRulerBody.setText("");
                 Glide.with(btnRulerBody).load(R.mipmap.ic_add_pic).centerCrop().into(btnRulerBody);
                 picRulerBodyPath = "";
@@ -381,27 +385,33 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 JsonArray array = new JsonArray();
                 JsonObject obj1 = new JsonObject();
                 obj1.addProperty("val", editChestBust.getText().toString().trim());
-                obj1.addProperty("name", "1.jpg");
+                obj1.addProperty("name", new File(picBustPath).getName());
+                obj1.addProperty("num", "1");
                 array.add(obj1);
                 JsonObject obj2 = new JsonObject();
                 obj2.addProperty("val", editChestWidth.getText().toString().trim());
-                obj2.addProperty("name", "2.jpg");
+                obj2.addProperty("name", new File(picWidthPath).getName());
+                obj2.addProperty("num", "2");
                 array.add(obj2);
                 JsonObject obj3 = new JsonObject();
                 obj3.addProperty("val", editBodyLength.getText().toString().trim());
-                obj3.addProperty("name", "3.jpg");
+                obj3.addProperty("name", new File(picBodyPath).getName());
+                obj3.addProperty("num", "3");
                 array.add(obj3);
                 JsonObject obj4 = new JsonObject();
                 obj4.addProperty("val", editRulerChest.getText().toString().trim());
-                obj4.addProperty("name", "4.jpg");
+                obj4.addProperty("name", new File(picRulerWidthPath).getName());
+                obj4.addProperty("num", "4");
                 array.add(obj4);
                 JsonObject obj5 = new JsonObject();
                 obj5.addProperty("val", editBodyLength.getText().toString().trim());
-                obj5.addProperty("name", "5.jpg");
+                obj5.addProperty("name", new File(picRulerBodyPath).getName());
+                obj5.addProperty("num", "5");
                 array.add(obj5);
                 JsonObject obj = new JsonObject();
                 obj.addProperty("val", "");
-                obj.addProperty("name", "video.mp4");
+                obj.addProperty("name", new File(vadioPath).getName());
+                obj.addProperty("num", "6");
                 array.add(obj);
                 String string = array.toString();
                 FileUtil.createfile(parentPath + "/weight.txt");
@@ -423,7 +433,6 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 try {
                     boolean b = ZipUtils.zipFiles(files, new File(zipFile));
                     if (b) {
-
                         ToastUtils.showLong("打包完成，可以上传");
                         runOnUiThread(new Runnable() {
                             @Override
