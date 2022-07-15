@@ -138,7 +138,7 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         removePicture(PICTYPE_RULER_WIDTH);
         removePicture(PICTYPE_RULER_BODY);
         Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnVadio);
-        FileUtils.delete(parentPath);
+//        FileUtils.delete(parentPath);
 
         picBustPath = "";
         picWidthPath = "";
@@ -437,6 +437,7 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                clean();
                                 startActivity(new Intent(PiczipActivity.this, FileListActivity.class));
                             }
                         });
