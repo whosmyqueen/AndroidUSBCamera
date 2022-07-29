@@ -1,1 +1,8 @@
-include ':app', ':libusbcamera'
+include ':app'
+
+// For debug online
+//include ':libausbc'
+//include ':libuvc'
+//include ':libpush'
+//include ':libnative'
+//include ':libuvccommon'
