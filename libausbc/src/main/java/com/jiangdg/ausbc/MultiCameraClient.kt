@@ -23,8 +23,10 @@ import com.jiangdg.ausbc.utils.CameraUtils.isUsbCamera
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.MediaUtils
 import com.jiangdg.ausbc.utils.Utils
-import com.jiangdg.natives.YUVUtils
-import com.serenegiant.usb.*
+import com.jiangdg.usb.*
+import com.jiangdg.usb.DeviceFilter
+import com.jiangdg.uvc.IFrameCallback
+import com.jiangdg.uvc.UVCCamera
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,7 +73,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
              */
             override fun onDetach(device: UsbDevice?) {
                 if (Utils.debugCamera) {
-                    Logger.i(TAG, "onDetach device = ${device?.toString()}")
+                    Logger.i(TAG, "onDetach device = ${device?.deviceName}")
                 }
                 device ?: return
                 if (!isUsbCamera(device) && !isFilterDevice(ctx, device)) {
@@ -93,7 +95,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
                 createNew: Boolean
             ) {
                 if (Utils.debugCamera) {
-                    Logger.i(TAG, "onConnect device = ${device?.toString()}")
+                    Logger.i(TAG, "onConnect device = ${device?.deviceName}")
                 }
                 device ?: return
                 if (!isUsbCamera(device) && !isFilterDevice(ctx, device)) {
@@ -111,7 +113,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
              */
             override fun onDisconnect(device: UsbDevice?, ctrlBlock: USBMonitor.UsbControlBlock?) {
                 if (Utils.debugCamera) {
-                    Logger.i(TAG, "onDisconnect device = ${device?.toString()}")
+                    Logger.i(TAG, "onDisconnect device = ${device?.deviceName}")
                 }
                 device ?: return
                 if (!isUsbCamera(device) && !isFilterDevice(ctx, device)) {
@@ -130,7 +132,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
              */
             override fun onCancel(device: UsbDevice?) {
                 if (Utils.debugCamera) {
-                    Logger.i(TAG, "onCancel device = ${device?.toString()}")
+                    Logger.i(TAG, "onCancel device = ${device?.deviceName}")
                 }
                 device ?: return
                 if (!isUsbCamera(device) && !isFilterDevice(ctx, device)) {
@@ -150,6 +152,9 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
         if (isMonitorRegistered()) {
             return
         }
+        if (Utils.debugCamera) {
+            Logger.i(TAG, "register...")
+        }
         mUsbMonitor?.register()
     }
 
@@ -159,6 +164,9 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
     fun unRegister() {
         if (!isMonitorRegistered()) {
             return
+        }
+        if (Utils.debugCamera) {
+            Logger.i(TAG, "unRegister...")
         }
         mUsbMonitor?.unregister()
     }
@@ -258,7 +266,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
             Handler(Looper.getMainLooper())
         }
         private val mSaveImageExecutor: ExecutorService by lazy {
-            Executors.newSingleThreadExecutor()
+            Executors.newFixedThreadPool(10)
         }
         private val mNV21DataQueue: LinkedBlockingDeque<ByteArray> by lazy {
             LinkedBlockingDeque(MAX_NV21_DATA)
@@ -272,21 +280,21 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
 
         private val frameCallBack = IFrameCallback { frame ->
             frame?.apply {
+                frame.position(0)
                 val data = ByteArray(capacity())
                 get(data)
                 mPreviewCallback?.onPreviewData(data, IPreviewDataCallBack.DataFormat.NV21)
-                // for image
-                if (mNV21DataQueue.size >= MAX_NV21_DATA) {
-                    mNV21DataQueue.removeLast()
-                }
-                mNV21DataQueue.offerFirst(data)
-                // for video
-                // avoid preview size changed
                 mPreviewSize?.apply {
-                    if (data.size != width * height * 3 /2) {
+                    // for image
+                    if (mNV21DataQueue.size >= MAX_NV21_DATA) {
+                        mNV21DataQueue.removeLast()
+                    }
+                    mNV21DataQueue.offerFirst(data)
+                    // for video
+                    // avoid preview size changed
+                    if (data.size != width * height * 3 / 2) {
                         return@IFrameCallback
                     }
-                    YUVUtils.nv21ToYuv420sp(data, width, height)
                     mVideoProcess?.putRawData(RawData(data, data.size))
                 }
             }
@@ -366,6 +374,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
             // 2. set preview size and register preview callback
             try {
                 val previewSize = getSuitableSize(request.previewWidth, request.previewHeight)
+                Logger.e(TAG, "getSuitableSize: $previewSize")
                 if (! isPreviewSizeSupported(previewSize)) {
                     mMainHandler.post {
                         mCameraStateCallback?.onCameraState(
@@ -427,6 +436,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
             }
             mUvcCamera?.setFrameCallback(frameCallBack, UVCCamera.PIXEL_FORMAT_YUV420SP)
             // 3. start preview
+            mCameraView = cameraView ?: mCameraView
             when(cameraView) {
                 is Surface -> {
                     mUvcCamera?.setPreviewDisplay(cameraView)
@@ -441,7 +451,7 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
                     mUvcCamera?.setPreviewTexture(cameraView.surfaceTexture)
                 }
                 else -> {
-                    throw IllegalStateException("Only support Surface or SurfaceTexture or SurfaceView or TextureView or GLSurfaceView")
+                    throw IllegalStateException("Only support Surface or SurfaceTexture or SurfaceView or TextureView or GLSurfaceView--$cameraView")
                 }
             }
             mUvcCamera?.autoFocus = true
@@ -496,7 +506,6 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
                 val location = Utils.getGpsLocation(ctx)
                 val width = mPreviewSize!!.width
                 val height = mPreviewSize!!.height
-                YUVUtils.yuv420spToNv21(data, width, height)
                 val ret = MediaUtils.saveYuv2Jpeg(path, data, width, height)
                 if (! ret) {
                     val file = File(path)
@@ -553,6 +562,143 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
         }
 
         /**
+         * Set auto focus
+         *
+         * @param enable true enable auto focus
+         */
+        fun setAutoFocus(enable: Boolean) {
+            mUvcCamera?.autoFocus = enable
+        }
+
+        /**
+         * Set auto white balance
+         *
+         * @param autoWhiteBalance true enable auto white balance
+         */
+        fun setAutoWhiteBalance(autoWhiteBalance: Boolean) {
+            mUvcCamera?.autoWhiteBlance = autoWhiteBalance
+        }
+
+        /**
+         * Set zoom
+         *
+         * @param zoom zoom value, 0 means reset
+         */
+        fun setZoom(zoom: Int) {
+            mUvcCamera?.zoom = zoom
+        }
+
+        /**
+         * Get zoom
+         */
+        fun getZoom() = mUvcCamera?.zoom
+
+        /**
+         * Set gain
+         *
+         * @param gain gain value, 0 means reset
+         */
+        fun setGain(gain: Int) {
+            mUvcCamera?.gain = gain
+        }
+
+        /**
+         * Get gain
+         */
+        fun getGain() = mUvcCamera?.gain
+
+        /**
+         * Set gamma
+         *
+         * @param gamma gamma value, 0 means reset
+         */
+        fun setGamma(gamma: Int) {
+            mUvcCamera?.gamma = gamma
+        }
+
+        /**
+         * Get gamma
+         */
+        fun getGamma() = mUvcCamera?.gamma
+
+        /**
+         * Set brightness
+         *
+         * @param brightness brightness value, 0 means reset
+         */
+        fun setBrightness(brightness: Int) {
+            mUvcCamera?.brightness = brightness
+        }
+
+        /**
+         * Get brightness
+         */
+        fun getBrightness() = mUvcCamera?.brightness
+
+        /**
+         * Set contrast
+         *
+         * @param contrast contrast value, 0 means reset
+         */
+        fun setContrast(contrast: Int) {
+            mUvcCamera?.contrast = contrast
+        }
+
+        /**
+         * Get contrast
+         */
+        fun getContrast() = mUvcCamera?.contrast
+
+        /**
+         * Set sharpness
+         *
+         * @param sharpness sharpness value, 0 means reset
+         */
+        fun setSharpness(sharpness: Int) {
+            mUvcCamera?.sharpness = sharpness
+        }
+
+        /**
+         * Get sharpness
+         */
+        fun getSharpness() = mUvcCamera?.sharpness
+
+        /**
+         * Set saturation
+         *
+         * @param saturation saturation value, 0 means reset
+         */
+        fun setSaturation(saturation: Int) {
+            mUvcCamera?.saturation = saturation
+        }
+
+        /**
+         * Get saturation
+         */
+        fun getSaturation() = mUvcCamera?.saturation
+
+        /**
+         * Set hue
+         *
+         * @param hue hue value, 0 means reset
+         */
+        fun setHue(hue: Int) {
+            mUvcCamera?.hue = hue
+        }
+
+        /**
+         * Get hue
+         */
+        fun getHue() = mUvcCamera?.hue
+
+        /**
+         * Get real preview size
+         *
+         * @return see [PreviewSize]
+         */
+        fun getPreviewSize() = mPreviewSize
+
+        /**
          * Set usb control block, when the uvc device was granted permission
          *
          * @param ctrlBlock see [USBMonitor.OnDeviceConnectListener]#onConnectedDev
@@ -578,13 +724,12 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
          * @param cameraRequest camera request
          */
         fun openCamera(cameraView: Any? = null, cameraRequest: CameraRequest? = null) {
-            mCameraView = cameraView ?: mCameraView
-            mCameraRequest = cameraRequest ?: mCameraRequest ?: getDefaultCameraRequest()
+            mCameraRequest = cameraRequest ?: getDefaultCameraRequest()
             val thread = HandlerThread("${device.deviceName}-${device.deviceId}").apply {
                 start()
             }.also {
                 mCameraHandler = Handler(it.looper, this)
-                mCameraHandler?.obtainMessage(MSG_START_PREVIEW, Pair(cameraView, cameraRequest))?.sendToTarget()
+                mCameraHandler?.obtainMessage(MSG_START_PREVIEW, Pair(cameraView, mCameraRequest))?.sendToTarget()
             }
             this.mCameraThread = thread
         }
@@ -670,13 +815,26 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
                 Logger.e(TAG, "updateResolution failed, video recording...")
                 return
             }
-            closeCamera()
-            mMainHandler.postDelayed({
-                mCameraRequest!!.previewWidth = width
-                mCameraRequest!!.previewHeight = height
-                openCamera()
-            }, 100)
+            mCameraRequest?.apply {
+                if (previewWidth == width && previewHeight == height) {
+                    return@apply
+                }
+                Logger.i(TAG, "updateResolution: width = $width, height = $height")
+                closeCamera()
+                mMainHandler.postDelayed({
+                    previewWidth = width
+                    previewHeight = height
+                    openCamera(mCameraView, mCameraRequest)
+                }, 1000)
+            }
         }
+
+        /**
+         * Is mic supported
+         *
+         * @return true camera support mic
+         */
+        fun isMicSupported() = CameraUtils.isCameraContainsMic(device)
 
         /**
          * Is record video
@@ -737,7 +895,17 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
 
         private fun initEncodeProcessor(previewWidth: Int, previewHeight: Int) {
             releaseEncodeProcessor()
-            mAudioProcess = AACEncodeProcessor()
+            mAudioProcess = AACEncodeProcessor(if (isMicSupported()) {
+                if (Utils.debugCamera) {
+                    Logger.i(TAG, "Audio record by using device internal mic")
+                }
+                mCtrlBlock
+            } else {
+                if (Utils.debugCamera) {
+                    Logger.i(TAG, "Audio record by using system mic")
+                }
+                null
+            })
             mVideoProcess = H264EncodeProcessor(previewWidth, previewHeight, false)
         }
 
@@ -755,12 +923,11 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
             }
             // find it
             sizeList.find {
-                it.width == maxWidth && it.height == maxHeight
+                (it.width == maxWidth && it.height == maxHeight)
             }.also { size ->
                 size ?: return@also
                 return size
             }
-
             // find the same aspectRatio
             val aspectRatio = maxWidth.toFloat() / maxHeight
             sizeList.find {
@@ -780,6 +947,13 @@ class MultiCameraClient(ctx: Context, callback: IDeviceConnectCallBack?) {
                     minDistance = abs(maxWidth - size.width)
                     closetSize = size
                 }
+            }
+            // use default
+            sizeList.find {
+                (it.width == DEFAULT_PREVIEW_WIDTH || it.height == DEFAULT_PREVIEW_HEIGHT)
+            }.also { size ->
+                size ?: return@also
+                return size
             }
             return closetSize
         }

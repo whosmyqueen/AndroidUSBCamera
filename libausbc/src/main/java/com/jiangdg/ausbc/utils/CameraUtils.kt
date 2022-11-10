@@ -5,9 +5,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.usb.UsbConstants
 import android.hardware.usb.UsbDevice
+import android.hardware.usb.UsbManager
 import androidx.core.content.ContextCompat
 import com.jiangdg.ausbc.R
-import com.serenegiant.usb.DeviceFilter
+import com.jiangdg.usb.DeviceFilter
 
 /** Camera tools
  *
@@ -44,6 +45,26 @@ object CameraUtils {
     }
 
     /**
+     * Is camera contains mic
+     *
+     * @param device usb device
+     * @return true contains
+     */
+    fun isCameraContainsMic(device: UsbDevice?): Boolean {
+//        device ?: return false
+//        var hasMic = false
+//        for (i in 0 until device.interfaceCount) {
+//            val cls = device.getInterface(i).interfaceClass
+//            if (cls == UsbConstants.USB_CLASS_AUDIO) {
+//                hasMic = true
+//                break
+//            }
+//        }
+//        return hasMic
+        return false
+    }
+
+    /**
      * Filter needed usb device by according to filter regular
      *
      * @param context context
@@ -72,5 +93,16 @@ object CameraUtils {
     fun hasCameraPermission(ctx: Context): Boolean{
         val locPermission = ContextCompat.checkSelfPermission(ctx, Manifest.permission.CAMERA)
         return locPermission == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun hasUVCCamera(context: Context): Boolean {
+        val usbManager = context.getSystemService(Context.USB_SERVICE) as UsbManager
+        val usbDevices = usbManager.deviceList
+        for (device in usbDevices.values) {
+            if (isUsbCamera(device) || isFilterDevice(context, device)) {
+                return true
+            }
+        }
+        return false
     }
 }

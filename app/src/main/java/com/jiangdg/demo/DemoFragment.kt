@@ -57,12 +57,13 @@ import com.jiangdg.ausbc.render.effect.bean.CameraEffect
 import com.jiangdg.ausbc.utils.*
 import com.jiangdg.ausbc.utils.bus.BusKey
 import com.jiangdg.ausbc.utils.bus.EventBus
-import com.jiangdg.ausbc.utils.imageloader.ILoader
-import com.jiangdg.ausbc.utils.imageloader.ImageLoaders
+import com.jiangdg.utils.imageloader.ILoader
+import com.jiangdg.utils.imageloader.ImageLoaders
 import com.jiangdg.ausbc.widget.*
 import com.jiangdg.demo.EffectListDialog.Companion.KEY_ANIMATION
 import com.jiangdg.demo.EffectListDialog.Companion.KEY_FILTER
 import com.jiangdg.demo.databinding.DialogMoreBinding
+import com.jiangdg.utils.MMKVUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
@@ -175,17 +176,16 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                         if (this is CameraUvcStrategy) {
                             mViewBinding.uvcLogoIv.visibility = View.GONE
                         }
-                    }
-                    CameraStatus.STOP -> {
-                        if (this is CameraUvcStrategy) {
-                            mViewBinding.uvcLogoIv.visibility = View.VISIBLE
-                        }
+                        mViewBinding.frameRateTv.visibility = View.VISIBLE
                     }
                     else -> {
+                        mViewBinding.frameRateTv.visibility = View.GONE
                         if (this is CameraUvcStrategy) {
                             mViewBinding.uvcLogoIv.visibility = View.VISIBLE
                         }
-                        ToastUtils.show(it.message ?: "camera error")
+                        it.message?.apply {
+                            ToastUtils.show(this)
+                        }
                     }
                 }
             }
@@ -294,7 +294,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         return mViewBinding.root
     }
 
-    override fun getGravity(): Int = Gravity.TOP
+    override fun getGravity(): Int = Gravity.CENTER
 
     override fun onViewClick(mode: CaptureMediaView.CaptureMode?) {
         if (! isCameraOpened()) {
@@ -478,19 +478,19 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         for (index in (0 until usbDeviceList.size)) {
             val dev = usbDeviceList[index]
             val devName = if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.LOLLIPOP && !dev.productName.isNullOrEmpty()) {
-                dev.productName
+                "${dev.productName}(${curDevice?.deviceId})"
             } else {
-                "${dev.deviceName}(${dev.deviceId})"
+                dev.deviceName
             }
             val curDevName = if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.LOLLIPOP && !curDevice?.productName.isNullOrEmpty()) {
-                curDevice!!.productName
+                "${curDevice!!.productName}(${curDevice.deviceId})"
             } else {
-                "${curDevice?.deviceName}(${curDevice?.deviceId})"
+                curDevice?.deviceName
             }
             if (devName == curDevName) {
                 selectedIndex = index
             }
-            list.add(devName!!)
+            list.add(devName)
         }
         MaterialDialog(requireContext()).show {
             listItemsSingleChoice(
@@ -631,11 +631,15 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
     }
 
     private fun goToGalley() {
-        Intent(
-            Intent.ACTION_VIEW,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        ).apply {
-            startActivity(this)
+        try {
+            Intent(
+                Intent.ACTION_VIEW,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            ).apply {
+                startActivity(this)
+            }
+        } catch (e: Exception) {
+            ToastUtils.show("open error: ${e.localizedMessage}")
         }
     }
 

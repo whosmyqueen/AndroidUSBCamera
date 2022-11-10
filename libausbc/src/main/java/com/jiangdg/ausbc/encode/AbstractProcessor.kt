@@ -25,6 +25,7 @@ import com.jiangdg.ausbc.encode.bean.RawData
 import com.jiangdg.ausbc.encode.muxer.Mp4Muxer
 import com.jiangdg.ausbc.utils.Logger
 import com.jiangdg.ausbc.utils.Utils
+import com.jiangdg.natives.YUVUtils
 import java.lang.Exception
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicBoolean
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * @author Created by jiangdg on 2022/2/10
  */
-abstract class AbstractProcessor {
+abstract class AbstractProcessor(private val gLESRender: Boolean = false, private val width: Int = 0, private val height: Int = 0) {
     private var mEncodeThread: HandlerThread? = null
     private var mEncodeHandler: Handler? = null
     protected var mMediaCodec: MediaCodec? = null
@@ -101,9 +102,6 @@ abstract class AbstractProcessor {
     fun setMp4Muxer(muxer: Mp4Muxer, isVideo: Boolean) {
         this.mMp4Muxer = muxer
         this.isVideo = isVideo
-        mMediaCodec?.outputFormat?.let { format->
-            mMp4Muxer?.addTracker(format, isVideo)
-        }
     }
 
     /**
@@ -212,6 +210,9 @@ abstract class AbstractProcessor {
             if (mRawDataQueue.isEmpty()) {
                 return@let
             }
+            if (gLESRender && isVideo) {
+                return@let
+            }
             val rawData = mRawDataQueue.poll() ?: return@let
             val inputIndex = codec.dequeueInputBuffer(TIMES_OUT_US)
             if (inputIndex < 0) {
@@ -222,9 +223,19 @@ abstract class AbstractProcessor {
             } else {
                 codec.getInputBuffer(inputIndex)
             }
+            var data: ByteArray = rawData.data
+            if (isVideo) {
+                val yuv420sp = ByteArray(rawData.size)
+                System.arraycopy(rawData.data, 0, yuv420sp, 0, rawData.size)
+                YUVUtils.nv21ToYuv420sp(yuv420sp, width, height)
+                data = yuv420sp
+            }
             inputBuffer?.clear()
-            inputBuffer?.put(rawData.data)
-            codec.queueInputBuffer(inputIndex, 0, rawData.data.size, getPTSUs(rawData.data.size), 0)
+            inputBuffer?.put(data)
+            codec.queueInputBuffer(inputIndex, 0, data.size, getPTSUs(data.size), 0)
+            if (Utils.debugCamera) {
+                Logger.i(TAG, "queue mediacodec data, isVideo=$isVideo, len=${data.size}")
+            }
         }
     }
 
@@ -233,9 +244,9 @@ abstract class AbstractProcessor {
             return
         }
         if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {
-            Logger.i(TAG, "Key frame, len = $length")
+            Logger.i(TAG, "isVideo = $isVideo, Key frame, len = $length")
         } else if (bufferInfo.flags == MediaCodec.BUFFER_FLAG_CODEC_CONFIG) {
-            Logger.i(TAG, "Pps/sps frame, len = $length")
+            Logger.i(TAG, "isVideo = $isVideo, Pps/sps frame, len = $length")
         }
     }
 

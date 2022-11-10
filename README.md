@@ -62,7 +62,7 @@ class DemoFragment : CameraFragment() {
     private lateinit var mViewBinding: FragmentDemoBinding
     
     override fun initView() {
-        
+        super.initView()
     }
     
     override fun getCameraView(): IAspectRatio {
@@ -70,7 +70,7 @@ class DemoFragment : CameraFragment() {
     }
     
     override fun initData() {
-        
+        super.initData()
     }
 
     override fun getCameraViewContainer(): ViewGroup {
@@ -154,6 +154,20 @@ mCameraClient?.addEncodeDataCallBack(callBack)
 
 // acquire raw data(yuv)
 mCameraClient?.addPreviewDataCallBack(callBack)
+```
+
+&emsp;Or,camera configuration:
+
+```kotlin
+mCamera?.setZoom(0)
+mCamera?.setSharpness(0)
+mCamera?.setHue(0)
+mCamera?.setSaturation(0)
+mCamera?.setContrast(0)
+mCamera?.setGamma(0)
+mCamera?.setGain(0)
+mCamera?.setAutoWhiteBalance(true)
+mCamera?.setAutoFocus(true)
 ```
 
 &emsp;For more advanced features, you can even add some **filters** to your camera.This library providers some default filters, sush as **EffectBlackWhite**、**EffectSoul** and **EffectZoom**, and more filters will be added in the future.Of coure, you can also relize your own filters by extending **AbstractEffect**. For example：
@@ -262,6 +276,8 @@ dependencies {
 Demo
 -------
 
+![](https://www.pgyer.com/app/qrcode/fVo5)
+
 &emsp;[AUSBC.apk](https://github.com/jiangdongguo/AndroidUSBCamera/blob/master/app/release/app-release.apk)
 
 
@@ -286,7 +302,7 @@ Homepage & Help
 
 
 &emsp;If you have any question or fun ideas, please issues to me.  
-&emsp;Of course, you can also send me a email[ **765067602@qq.com** ].  
+&emsp;Of course, you can also send me a **WeiXin**   "`laojiang299`"   or a **EMAIL**  "`765067602@qq.com`".   
 
 &emsp;So, do not forget to send logs from location **Android/data/com.jiangdg.ausbc/files** and collect logcat information by executing command `adb shell logcat -v threadtime > usbcamera.log`
 

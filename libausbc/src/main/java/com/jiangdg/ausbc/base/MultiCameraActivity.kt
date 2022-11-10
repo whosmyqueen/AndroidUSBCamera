@@ -1,9 +1,24 @@
+/*
+ * Copyright 2017-2022 Jiangdg
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.jiangdg.ausbc.base
 
 import android.hardware.usb.UsbDevice
 import com.jiangdg.ausbc.MultiCameraClient
 import com.jiangdg.ausbc.callback.IDeviceConnectCallBack
-import com.serenegiant.usb.USBMonitor
+import com.jiangdg.usb.USBMonitor
 
 /** Multi-road camera activity
  *
@@ -21,7 +36,9 @@ abstract class MultiCameraActivity: BaseActivity() {
                     mCameraMap[device.deviceId] = this
                     onCameraAttached(this)
                 }
-                mCameraClient?.requestPermission(device)
+                if (isAutoRequestPermission()) {
+                    mCameraClient?.requestPermission(device)
+                }
             }
 
             override fun onDetachDec(device: UsbDevice?) {
@@ -36,7 +53,7 @@ abstract class MultiCameraActivity: BaseActivity() {
                 ctrlBlock ?: return
                 mCameraMap[device.deviceId]?.apply {
                     setUsbControlBlock(ctrlBlock)
-                    onCameraDisConnected(this)
+                    onCameraConnected(this)
                 }
             }
 
@@ -59,6 +76,10 @@ abstract class MultiCameraActivity: BaseActivity() {
     }
 
     override fun clear() {
+        mCameraMap.values.forEach {
+            it.closeCamera()
+        }
+        mCameraMap.clear()
         mCameraClient?.unRegister()
         mCameraClient?.destroy()
         mCameraClient = null
@@ -101,4 +122,35 @@ abstract class MultiCameraActivity: BaseActivity() {
      * Get all usb device list
      */
     protected fun getDeviceList() = mCameraClient?.getDeviceList()
+
+    /**
+     * Get camera client
+     */
+    protected fun getCameraClient() = mCameraClient
+
+    /**
+     * Is auto request permission
+     * default is true
+     */
+    protected fun isAutoRequestPermission() = true
+
+    /**
+     * Request permission
+     *
+     * @param device see [UsbDevice]
+     */
+    protected fun requestPermission(device: UsbDevice?) {
+        mCameraClient?.requestPermission(device)
+    }
+
+    /**
+     * Has permission
+     *
+     * @param device see [UsbDevice]
+     */
+    protected fun hasPermission(device: UsbDevice?) = mCameraClient?.hasPermission(device) == true
+
+    protected fun openDebug(debug: Boolean) {
+        mCameraClient?.openDebug(debug)
+    }
 }
