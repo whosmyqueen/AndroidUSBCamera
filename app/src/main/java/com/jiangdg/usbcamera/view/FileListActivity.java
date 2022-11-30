@@ -99,7 +99,8 @@ public class FileListActivity extends AppCompatActivity {
                 continue;
             }
             int finalI = i;
-            RxHttp.postForm("http://119.253.84.114:9317/video/cow")
+//            RxHttp.postForm("http://119.253.84.114:9317/video/cow")
+            RxHttp.postForm("http://123.56.2.215:9317/video/cow")
                     .addFile("cow", file)
                     .upload(AndroidSchedulers.mainThread(), progress -> {
                         datum.setStatus(1);
@@ -109,22 +110,23 @@ public class FileListActivity extends AppCompatActivity {
                     .add("code", userCode)
                     .add("md5sum", FileUtils.getFileMD5ToString(file))
                     .asClass(UploadResultBean.class).subscribe(result -> {
-                if (result.getStatus() != 1) {
-                    datum.setStatus(3);
-                    return;
-                }
-                datum.setStatus(2);
+                        if (result.getStatus() != 1) {
+                            datum.setStatus(3);
+                            return;
+                        }
+                        datum.setStatus(2);
 
-                if (file.getName().endsWith(".zip"))//如果是压缩包的形式
-                    FileUtils.move(file.getParentFile(), new File(videosOkDir + File.separator + file.getParentFile().getName()));
-                else
-                    FileUtils.move(file, new File(videosOkDir + File.separator + file.getName()));
+                        if (file.getName().endsWith(".zip"))//如果是压缩包的形式
+                            FileUtils.move(file.getParentFile(), new File(videosOkDir + File.separator + file.getParentFile().getName()));
+                        else
+                            FileUtils.move(file, new File(videosOkDir + File.separator + file.getName()));
 
-                mAdapter.notifyItemChanged(finalI);
-            }, throwable -> {
-                datum.setStatus(3);
-                mAdapter.notifyItemChanged(finalI);
-            });
+                        mAdapter.notifyItemChanged(finalI);
+                    }, throwable -> {
+                        ToastUtils.showLong(ObjectUtils.toString(throwable));
+                        datum.setStatus(3);
+                        mAdapter.notifyItemChanged(finalI);
+                    });
 
         }
     }

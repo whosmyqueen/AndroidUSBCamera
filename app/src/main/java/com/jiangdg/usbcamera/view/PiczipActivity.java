@@ -20,6 +20,7 @@ import com.blankj.utilcode.util.FileUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ObjectUtils;
 import com.blankj.utilcode.util.ToastUtils;
+import com.blankj.utilcode.util.UriUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.JsonArray;
@@ -114,7 +115,6 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         removePicture(PICTYPE_WIDTH);
         removePicture(PICTYPE_BODY);
         Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnVadio);
-        FileUtils.delete(parentPath);
 
         picBustPath = "";
         picWidthPath = "";
@@ -188,7 +188,44 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    /**
+     * 系统相机视频
+     */
     private void takeVadio() {
+        if (parentPath.isEmpty())
+            parentPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
+        PictureSelector.create(this)
+                .openCamera(PictureMimeType.ofVideo())
+                .imageEngine(GlideEngine.createGlideEngine())
+                .setOutputCameraPath(parentPath)
+//                .recordVideoSecond(recordVideoSecond)
+                .videoQuality(0)//视频录制质量 0 or 1
+                .isPreviewVideo(true)
+                .forResult(new OnResultCallbackListener<LocalMedia>() {
+                    @Override
+                    public void onResult(List<LocalMedia> result) {
+                        if (ObjectUtils.isNotEmpty(result) && result.size() > 0) {
+                            LocalMedia image = result.get(0);
+                            String path = image.getPath();
+                            if (ObjectUtils.isNotEmpty(image.getPath()) && image.getPath().contains("content://")) {
+                                path = UriUtils.uri2File(Uri.parse(image.getPath())).getAbsolutePath();
+                            }
+                            vadioPath = path;
+                            Glide.with(PiczipActivity.this).asBitmap().diskCacheStrategy(DiskCacheStrategy.NONE)
+                                    .skipMemoryCache(true).load(path).centerInside().into(btnVadio);
+                        } else {
+                            ToastUtils.showLong("视频拍摄失败，请重新拍摄！");
+                        }
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        LogUtils.e("拍摄取消");
+                    }
+                });
+    }
+
+    private void takeVadioByUsb() {
         if (parentPath.isEmpty())
             parentPath = UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis();
         Intent intent = new Intent(this, USBCameraActivity.class);
@@ -258,19 +295,16 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
     private void removePicture(int picType) {
         switch (picType) {
             case PICTYPE_BUST:
-                FileUtils.delete(picBustPath);
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnChestBust);
                 editChestBust.setText("");
                 picBustPath = "";
                 break;
             case PICTYPE_WIDTH:
-                FileUtils.delete(picWidthPath);
                 editChestWidth.setText("");
                 Glide.with(this).load(R.mipmap.ic_add_pic).centerCrop().into(btnChestWidth);
                 picWidthPath = "";
                 break;
             case PICTYPE_BODY:
-                FileUtils.delete(picBodyPath);
                 editBodyLength.setText("");
                 Glide.with(btnBodyLength).load(R.mipmap.ic_add_pic).centerCrop().into(btnBodyLength);
                 picBodyPath = "";
@@ -327,7 +361,9 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 files.add(new File(picBustPath));
                 files.add(new File(picWidthPath));
                 files.add(new File(picBodyPath));
-                String zipFile = parentPath + "/" + System.currentTimeMillis() + String.format(getString(R.string.fmt_zip_name), editChestBust.getText().toString().trim(), editChestWidth.getText().toString().trim(), editBodyLength.getText().toString().trim());
+                String fileName ="pig"+ System.currentTimeMillis() + String.format(getString(R.string.fmt_zip_name), editChestBust.getText().toString().trim(), editChestWidth.getText().toString().trim(), editBodyLength.getText().toString().trim());
+
+                String zipFile = parentPath + "/" + fileName;
 //                ToastUtils.showLong(parentPath + "     " + files.size());
 
                 zipFile(files, zipFile);
@@ -335,6 +371,7 @@ public class PiczipActivity extends AppCompatActivity implements View.OnClickLis
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        clean();
                         startActivity(new Intent(PiczipActivity.this, FileListActivity.class));
                     }
                 });
